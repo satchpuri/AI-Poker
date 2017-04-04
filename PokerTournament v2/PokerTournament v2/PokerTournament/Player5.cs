@@ -9,16 +9,62 @@ namespace PokerTournament
 {
     class Player5 : Player
     {
+        Random rand;
         public Player5(int idNum, string name, int money) : base(idNum, name, money)
         {
-
+            rand = new Random();
         }
         public override PlayerAction BettingRound1(List<PlayerAction> actions, Card[] hand)
         {
             PokerTournament.Card highCard;
             int handEval = Evaluate.RateAHand(this.Hand, out highCard);
-            //float odds = CalculatePotOdds();
-            throw new NotImplementedException();
+            int pot = CurrentPot(actions, "Bet1");
+            int betAmount = GetCurrentBet(actions, "Bet1");
+            float odds = CalculatePotOdds(betAmount, pot);
+            float returnRate = CalculateRateOfReturn(handEval, odds);
+            float chance = rand.Next(0,100);
+            Console.WriteLine("Return rate: " + returnRate);
+            Console.WriteLine("Chance: " + chance);
+            if (returnRate < 0.8)
+            {
+                if(chance > 94)
+                {
+                    return new PlayerAction(Name, "Bet1", "raise", betAmount);             
+                }
+                else
+                {
+                    return new PlayerAction(Name, "Bet1", "fold", 0); 
+                }
+            }
+            else if (returnRate < 1)
+            {
+                if (chance > 94)
+                {
+                    return new PlayerAction(Name, "Bet1", "call", 0);
+                }
+                else if (chance > 79)
+                {
+                    return new PlayerAction(Name, "Bet1", "raise", betAmount);
+                }
+                else
+                {
+                    return new PlayerAction(Name, "Bet1", "fold", 0);
+                }
+            }
+            else if (returnRate < 1.3)
+            {
+                if (chance > 70)
+                {
+                    return new PlayerAction(Name, "Bet1", "call", 0);
+                }
+                else
+                {
+                    return new PlayerAction(Name, "Bet1", "raise", betAmount);
+                }
+            }
+            return new PlayerAction(Name, "Bet1", "bet", betAmount);
+            //return new PlayerAction(Name, "Bet1", "bet", betAmount); 
+            //throw new NotImplementedException();
         }
 
         public override PlayerAction BettingRound2(List<PlayerAction> actions, Card[] hand)
@@ -31,18 +77,38 @@ namespace PokerTournament
             throw new NotImplementedException();
         }
 
-        public float CalculatePotOdds(int bet, int pot)
+        public float CalculatePotOdds(float bet, float pot)
         {
             float odds = 0f;
-            odds = bet / (bet + pot);
+            if (bet + pot > 0)
+            {
+                odds = bet / (bet + pot);
+            }
             return odds;
         }
 
-        public float CalculateRateOfReturn(int handStrength, float odds)
+        public float CalculateRateOfReturn(float handStrength, float odds)
         {
             float rate = 0f;
-            rate = handStrength / odds;
+            rate = (handStrength/10) / odds;
             return rate;
+        }
+
+
+        public int GetCurrentBet(List<PlayerAction> actions, string phase)
+        {
+            int bet = 0;
+            for (int i = 0; i < actions.Count; i++)
+            {
+                if (actions[i].ActionPhase.Equals(phase))
+                {
+                    if (actions[i].ActionName.Equals("bet") || actions[i].ActionName.Equals("raise"))
+                    {
+                        bet = actions[i].Amount;
+                    }
+                }
+            }
+            return bet;
         }
 
         public int CurrentPot(List<PlayerAction> actions, string phase)
