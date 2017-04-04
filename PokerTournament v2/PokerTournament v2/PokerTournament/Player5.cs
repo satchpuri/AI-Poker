@@ -62,7 +62,17 @@ namespace PokerTournament
                     return new PlayerAction(Name, "Bet1", "raise", betAmount);
                 }
             }
-            return new PlayerAction(Name, "Bet1", "bet", betAmount);
+            int res;
+            if (returnRate > 0 && returnRate != float.PositiveInfinity)
+            {
+                float fres = betAmount * (returnRate);
+                res = (int)fres;
+            }
+            else
+            {
+                res = 5*handEval;
+            }
+            return new PlayerAction(Name, "Bet1", "bet", res);
             //return new PlayerAction(Name, "Bet1", "bet", betAmount); 
             //throw new NotImplementedException();
         }
@@ -77,6 +87,7 @@ namespace PokerTournament
             throw new NotImplementedException();
         }
 
+        //Returns odds of bet compared to the current pot
         public float CalculatePotOdds(float bet, float pot)
         {
             float odds = 0f;
@@ -87,6 +98,7 @@ namespace PokerTournament
             return odds;
         }
 
+        //Returns the rate of return of continuing to bet
         public float CalculateRateOfReturn(float handStrength, float odds)
         {
             float rate = 0f;
@@ -94,7 +106,7 @@ namespace PokerTournament
             return rate;
         }
 
-
+        //Returns the current value of bets
         public int GetCurrentBet(List<PlayerAction> actions, string phase)
         {
             int bet = 0;
@@ -111,6 +123,7 @@ namespace PokerTournament
             return bet;
         }
 
+        //Gets the value of the current pot
         public int CurrentPot(List<PlayerAction> actions, string phase)
         {
             int pot = 0;
