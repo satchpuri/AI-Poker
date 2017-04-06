@@ -10,9 +10,11 @@ namespace PokerTournament
     class Player5 : Player
     {
         Random rand;
+        int initialMoney;
         public Player5(int idNum, string name, int money) : base(idNum, name, money)
         {
             rand = new Random();
+            initialMoney = money;
         }
         public override PlayerAction BettingRound1(List<PlayerAction> actions, Card[] hand)
         {
@@ -252,6 +254,10 @@ namespace PokerTournament
                         pot += actions[i].Amount;
                     }
                 }
+            }
+            if(pot > initialMoney * 2)
+            {
+                pot = initialMoney * 2;
             }
             return pot;
         }
