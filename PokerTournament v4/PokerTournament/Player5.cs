@@ -161,6 +161,8 @@ namespace PokerTournament
 
         public override PlayerAction Draw(Card[] hand)
         {
+            PokerTournament.Card highCard;
+            int handEval = Evaluate.RateAHand(this.Hand, out highCard);
             List<int> cardsToDelete = new List<int>();
             List<int> pair = new List<int>();
             pair = CheckPair();
@@ -168,8 +170,43 @@ namespace PokerTournament
             int discardAmount = 0;
             if (pair.Count == 0)
             {
-                Console.WriteLine("No pairs, not discarding.");
-                pa = new PlayerAction(Name, "Draw", "stand pat", 0);
+                if(highCard.Value == 14) //If Ace
+                {
+                    for (int i = 0; i < Hand.Length; i++)
+                    {
+                        if (Hand[i].Value != 14)
+                        {
+                            Console.WriteLine("Discarding " + Hand[i].ToString());
+                            hand[i] = null;
+                            discardAmount++;
+                        }
+                    }
+                }
+                else
+                {
+                    PokerTournament.Card highCardOld;
+                    int handEvalNew = Evaluate.RateAHand(this.Hand, out highCardOld);
+                    Card[] handTemp = this.Hand;
+                    for (int i = 0; i < Hand.Length; i++)
+                    {
+                        if (Hand[i] == highCardOld)
+                        {
+                            handTemp[i] = new PokerTournament.Card("Spades", 2); ;
+                        }
+                    }
+                    PokerTournament.Card highCardNew;
+                    handEvalNew = Evaluate.RateAHand(handTemp, out highCardNew);
+                    for (int i = 0; i < Hand.Length; i++)
+                    {
+                        if (Hand[i] == highCardOld || Hand[i] == highCardNew)
+                        {
+                            Hand[i] = null;
+                            discardAmount++;
+                        }
+                    }
+                }
+                pa = new PlayerAction(Name, "Draw", "draw", discardAmount); //Draws equal to discard amount
+                return pa;
                 //Should keep ace or two highest cards
             }
             else
@@ -181,6 +218,7 @@ namespace PokerTournament
                     {
                         if (Hand[i].Value != pair[r])
                         {
+                            Console.WriteLine("Discarding " + Hand[i].ToString());
                             hand[i] = null;
                             discardAmount++;
                         }
