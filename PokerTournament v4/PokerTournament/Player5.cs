@@ -165,6 +165,7 @@ namespace PokerTournament
             List<int> pair = new List<int>();
             pair = CheckPair();
             PlayerAction pa = null;
+            int discardAmount = 0;
             if (pair.Count == 0)
             {
                 Console.WriteLine("No pairs, not discarding.");
@@ -173,7 +174,7 @@ namespace PokerTournament
             }
             else
             {
-                Console.WriteLine("There are" + pair.Count + "pairs, attempting to discard.");
+                Console.WriteLine("There are " + pair.Count + " pairs, attempting to discard.");
                 for (int r = 0; r < pair.Count; r++)
                 {
                     for (int i = 0; i < Hand.Length; i++)
@@ -181,11 +182,12 @@ namespace PokerTournament
                         if (Hand[i].Value != pair[r])
                         {
                             hand[i] = null;
-                            pa = new PlayerAction(Name, "Draw", "draw", i+1); //Discard all cards that aren't part of a pair
+                            discardAmount++;
                         }
                     }
                 }
             }
+            pa = new PlayerAction(Name, "Draw", "draw", discardAmount); //Draws equal to discard amount
             return pa;
         }
 
