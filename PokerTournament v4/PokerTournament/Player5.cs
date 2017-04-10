@@ -32,7 +32,7 @@ namespace PokerTournament
             //Console.WriteLine("Pairs: " + CheckPair().Count);
             if (returnRate < 4)
             {
-                if(chance > 94)
+                if(chance > 80)
                 {
                     return new PlayerAction(Name, "Bet1", "raise", betAmount);             
                 }
@@ -43,11 +43,11 @@ namespace PokerTournament
             }
             else if (returnRate < 20)
             {
-                if (chance > 94)
+                if (chance > 50)
                 {
                     return new PlayerAction(Name, "Bet1", "call", 0);
                 }
-                else if (chance > 79)
+                else if (chance > 40)
                 {
                     return new PlayerAction(Name, "Bet1", "raise", betAmount);
                 }
@@ -171,6 +171,58 @@ namespace PokerTournament
             int discardAmount = 0;
             if (handEval > 4)
             {
+                //Counts for the dominant suit and dominant value of the hand
+                int[] suites = { 0, 0, 0, 0 };
+                int[] values = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+                for(int i=0; i<this.Hand.Length; i++)
+                {
+                    //Add this card's suit to the count
+                    switch (this.Hand[i].Suit)
+                    {
+                        case "Club":
+                            suites[0]++;
+                            break;
+                        case "Diamond":
+                            suites[1]++;
+                            break;
+                        case "Heart":
+                            suites[2]++;
+                            break;
+                        default:
+                            suites[3]++;
+                            break;
+                    }
+                    values[this.Hand[i].Value]++;
+                }
+
+                //If we have a dominant suit (4 cards), discard any cards that aren't part of it
+                List<int> discards = new List<int>();
+                for (int i = 0; i < suites.Length; i++)
+                {
+                    //Add this card's suit to the count
+                    switch (suites[i])
+                    {
+                        case 1:
+                            //Get the card's index if it should be discarded
+                            for(int k=0; k<this.Hand.Length; i++)
+                            {
+                                if (this.Hand[k].Suit == "Club" && i == 0) discards.Add(k);
+                                else if (this.Hand[k].Suit == "Diamond" && i == 1) discards.Add(k);
+                                else if (this.Hand[k].Suit == "Club" && i == 2) discards.Add(k);
+                                else if (this.Hand[k].Suit == "Spade" && i == 3) discards.Add(k);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                if (discards.Count > 0) {
+                    Console.WriteLine("Discarding " + discards[0].ToString());
+                    pa = new PlayerAction(Name, "Draw", "draw", discards.Count);
+                    return pa;
+                }
+
                 pa = new PlayerAction(Name, "Draw", "stand pat", 0);
                 return pa;
             }
